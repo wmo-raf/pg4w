@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  pg_db:
+    image: postgis/postgis:12-master
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=pgapi
+    ports: 
+      - 5432:5432
+    volumes:
+      - ts_postgres_data:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+  pg_api:
+    image: localhost:5000/pg-adapter-tileserv_pg_api:latest
+    command: python main.py
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    healthcheck:
+      test: curl --fail -s http://localhost:8000/healthcheck || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+  pg_tileserv:
+    image: pramsey/pg_tileserv:20201211
+    environment:
+      - DATABASE_URL=${PG_TILESERV_DATABASE_URL}
+    healthcheck:
+      test: curl --fail -s http://localhost:7800/index.json ||exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    ports: 
+      - 7800:7800
+  pg_varnish:
+    image: localhost:5000/pg-varnish:dev
+    environment: 
+      - BACKEND=pg_tileserv
+      - BACKEND_HOST=pg_tileserv
+      - BACKEND_PORT=7800
+    ports:
+      - 80:80
+    volumes:
+      - ./varnish/default.vcl/:/etc/varnish/default.vcl
+    # healthcheck:
+    #   test: curl --fail -s http://localhost:80/ ||exit 1
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 3
+    #   start_period: 35s
+  pg_nginx:
+    image: nginx:1.17-alpine
+    ports:
+      - target: 8001
+        published: 8001
+        mode: host
+    volumes:
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    # healthcheck:
+    #   test: curl --fail -s http://localhost:8001 || exit 1
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 3
+    #   start_period: 35s
+volumes: 
+  ts_postgres_data:

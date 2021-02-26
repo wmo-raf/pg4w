@@ -1,18 +1,6 @@
 version: '3.8'
 
 services:
-  pg_api:
-    build: ./app
-    container_name: pg_api
-    command: python main.py
-    volumes:
-      - ./app/:/usr/src/app/
-    expose:
-      - 8000
-    env_file:
-      - .env
-    depends_on: 
-      - pg_db
   pg_db:
     image: postgis/postgis:12-master
     container_name: pg_db
@@ -27,19 +15,25 @@ services:
       interval: 10s
       timeout: 10s
       retries: 10
-  pg_nginx:
-    image: nginx:1.17-alpine
-    container_name: pg_nginx
-    ports:
-      - 8001:8001
+  pg_api:
+    build: ./app
+    image: localhost:5000/pg-api:dev
+    container_name: pg_api
+    command: python main.py
     volumes:
-      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./app/:/usr/src/app/
+    expose:
+      - 8000
+    env_file:
+      - .env
     depends_on: 
       pg_db:
         condition: service_healthy
-      pg_tileserv:
-        condition: service_healthy
-
+    healthcheck:
+      test: curl --fail -s http://localhost:8000/healthcheck || exit 1
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
   pg_tileserv:
     image: pramsey/pg_tileserv:20201211
     container_name: pg_tileserv
@@ -48,20 +42,37 @@ services:
     depends_on: 
       pg_db:
         condition: service_healthy
+      pg_api:
+        condition: service_healthy
     healthcheck:
       test: curl --fail -s http://localhost:7800/ ||exit 1
-      interval: 10s
+      interval: 1m30s
       timeout: 10s
       retries: 10
-  
   pg_varnish:
-    image: varnish:6.5.1
+    build: ./varnish
+    image: localhost:5000/pg-varnish:dev
     container_name: pg_varnish
     ports:
       - 80
+    environment: 
+      - BACKEND=pg_tileserv
+      - BACKEND_HOST=pg_tileserv
+      - BACKEND_PORT=7800
     volumes:
       - ./varnish/default.vcl/:/etc/varnish/default.vcl
     depends_on: 
-      pg_db:
+      pg_tileserv:
         condition: service_healthy
-
+  pg_nginx:
+    image: nginx:1.17-alpine
+    container_name: pg_nginx
+    ports:
+      - 8001:8001
+    volumes:
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    depends_on: 
+      pg_api:
+        condition: service_healthy
+      pg_tileserv:
+        condition: service_healthy
