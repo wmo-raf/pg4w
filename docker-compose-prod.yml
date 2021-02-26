@@ -18,7 +18,7 @@ services:
       retries: 5
       start_period: 15s
   pg_api:
-    image: localhost:5000/pg-adapter-tileserv_pg_api:latest
+    image: ${PG_API_IMAGE}
     command: python main.py
     ports:
       - 8000:8000
@@ -43,7 +43,7 @@ services:
     ports: 
       - 7800:7800
   pg_varnish:
-    image: localhost:5000/pg-varnish:dev
+    image: ${PG_VARNISH_IMAGE}
     environment: 
       - BACKEND=pg_tileserv
       - BACKEND_HOST=pg_tileserv
