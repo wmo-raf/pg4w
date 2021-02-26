@@ -5,4 +5,4 @@
 docker-compose -f docker-compose-prod.yml config > docker-compose-swarm.yml
 
 # Deploy stack
-sudo docker stack deploy -c ./docker-compose-swarm.yml pg-adapter-tileserv
+sudo docker stack deploy -c ./docker-compose-swarm.yml pg-adapter-tileserv --with-registry-auth
