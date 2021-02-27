@@ -3,6 +3,7 @@ version: '3.8'
 services:
   pg_db:
     image: postgis/postgis:12-master
+    command: postgres -c shared_buffers=20GB max_connections=150 effective_cache_size=50GB max_worker_processes=30 max_parallel_workers=30 work_mem=20MB min_wal_size=1GB max_wal_size=4GB
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
