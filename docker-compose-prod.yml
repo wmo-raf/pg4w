@@ -8,7 +8,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=pgapi
     ports: 
-      - 5432:5432
+      - 5432
     volumes:
       - ts_postgres_data:/var/lib/postgresql/data/
     healthcheck:
