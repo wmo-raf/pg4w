@@ -42,6 +42,8 @@ services:
       start_period: 30s
     ports: 
       - 7800:7800
+    volumes:
+      - ./pg_tileserv/config/:/config/
   pg_varnish:
     image: ${PG_VARNISH_IMAGE}
     environment: 
@@ -51,7 +53,7 @@ services:
     ports:
       - 80:80
     volumes:
-      - ./varnish/default.vcl/:/etc/varnish/default.vcl
+      - ./varnish/default.vcl:/etc/varnish/default.vcl
     # healthcheck:
     #   test: curl --fail -s http://localhost:80/ ||exit 1
     #   interval: 5s

@@ -1,0 +1,3 @@
+MaxFeaturesPerTile = 250000
+DbPoolMaxConns = 10
+DbTimeout = 20
