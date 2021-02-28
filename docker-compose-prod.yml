@@ -4,7 +4,7 @@ services:
   pg_db:
     image: postgis/postgis:12-master
     # command: postgres -c shared_buffers=20GB -c max_connections=150 -c effective_cache_size=50GB -c max_worker_processes=30 -c max_parallel_workers=30 -c work_mem=20MB -c min_wal_size=1GB -c max_wal_size=4GB
-    command: postgres -c shared_buffers=10GB -c effective_cache_size=10GB -c max_worker_processes=10 -c max_parallel_workers=10
+    # command: postgres -c shared_buffers=10GB -c effective_cache_size=10GB -c max_worker_processes=10 -c max_parallel_workers=10
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -23,11 +23,11 @@ services:
     image: ${PG_API_IMAGE}
     command: python main.py
     ports:
-      - 8000:8000
+      - 4000:4000
     env_file:
       - .env
     healthcheck:
-      test: curl --fail -s http://localhost:8000/healthcheck || exit 1
+      test: curl --fail -s http://localhost:4000/healthcheck || exit 1
       interval: 15s
       timeout: 5s
       retries: 5
@@ -53,7 +53,7 @@ services:
       - BACKEND_HOST=pg_tileserv
       - BACKEND_PORT=7800
     ports:
-      - 80:80
+      - 80
     volumes:
       - ./varnish/default.vcl:/etc/varnish/default.vcl
     # healthcheck:
@@ -65,8 +65,8 @@ services:
   pg_nginx:
     image: nginx:1.17-alpine
     ports:
-      - target: 8001
-        published: 8001
+      - target: 4002
+        published: 4002
         mode: host
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
