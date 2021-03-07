@@ -12,9 +12,9 @@ services:
       #   - postgres_data:/var/lib/postgresql/data/
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 10s
-      retries: 10
+      interval: 5s
+      timeout: 5s
+      retries: 5
   pg_api:
     build: ./app
     image: localhost:5000/pg-api:dev
@@ -31,9 +31,9 @@ services:
         condition: service_healthy
     healthcheck:
       test: curl --fail -s http://localhost:8000/healthcheck || exit 1
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
+      interval: 5s
+      timeout: 5s
+      retries: 5
   pg_tileserv:
     image: pramsey/pg_tileserv:20201211
     container_name: pg_tileserv
@@ -46,9 +46,25 @@ services:
         condition: service_healthy
     healthcheck:
       test: curl --fail -s http://localhost:7800/ ||exit 1
-      interval: 1m30s
-      timeout: 10s
-      retries: 10
+      interval: 5s
+      timeout: 5s
+      retries: 105
+  pg_featureserv:
+    image: pramsey/pg_featureserv:20200408
+    container_name: pg_featureserv
+    environment:
+      - DATABASE_URL=${PG_TILESERV_DATABASE_URL}
+    depends_on: 
+      pg_db:
+        condition: service_healthy
+      pg_api:
+        condition: service_healthy
+    healthcheck:
+      test: curl --fail -s http://localhost:9000/ ||exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 3
+
   pg_varnish:
     build: ./varnish
     image: localhost:5000/pg-varnish:dev
