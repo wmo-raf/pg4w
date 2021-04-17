@@ -3,83 +3,72 @@ version: '3.8'
 services:
   pg_db:
     image: postgis/postgis:12-master
-    command: postgres -c shared_buffers=10GB -c effective_cache_size=10GB -c max_worker_processes=10 -c max_parallel_workers=10
+    container_name: pg_db
+    restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=pgapi
-    ports: 
-      - 5432
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
-      - ts_postgres_data:/var/lib/postgresql/data/
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
+        - ts_postgres_data:/var/lib/postgresql/data/
   pg_api:
-    image: ${PG_API_IMAGE}
-    command: python main.py
+    image: ${API_IMAGE}
+    container_name: pg_api
+    restart: always
+    command: gunicorn --bind 0.0.0.0:8000 pgadapter:app
     ports:
-      - 4000:4000
-    env_file:
-      - .env
-    healthcheck:
-      test: curl --fail -s http://localhost:4000/healthcheck || exit 1
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
+      - 8000
+    environment:
+      - DATABASE_URI=postgresql://${DB_USER}:${DB_PASSWORD}@pg_db:5432/${DB_NAME}
+      - PG_SERVICE_SCHEMA=${PG_SERVICE_SCHEMA}
+      - PG_SERVICE_USER=${PG_SERVICE_USER}
+      - PG_SERVICE_USER_PASSWORD=${PG_SERVICE_USER_PASSWORD}
+      - DB=postgres
+      - DB_HOST=pg_db
+      - DB_PORT=5432
+      - ROLLBAR_SERVER_TOKEN=${ROLLBAR_SERVER_TOKEN}
+    depends_on: 
+      - pg_db
+    volumes:
+      - ./database/initdb:/docker-entrypoint-initdb.d/
   pg_tileserv:
     image: pramsey/pg_tileserv:20201211
+    container_name: pg_tileserv
+    restart: always
     environment:
-      - DATABASE_URL=${PG_TILESERV_DATABASE_URL}
+      - DATABASE_URL=postgresql://${PG_SERVICE_USER}:${PG_SERVICE_USER_PASSWORD}@pg_db:5432/${DB_NAME}
+    volumes:
+      - ./pg_tileserv/config/pg_tileserv.toml:/config/pg_tileserv.toml
+    depends_on: 
+      - pg_db
+      - pg_api
+    ports:
+      - 7800:7800
     healthcheck:
-      test: curl --fail -s http://localhost:7800/index.json ||exit 1
+      test: curl --fail -s http://localhost:7800/ ||exit 1
       interval: 5s
       timeout: 5s
-      retries: 5
-      start_period: 30s
-    ports: 
-      - 7800:7800
-    volumes:
-      - ./pg_tileserv/config/:/config/
+      retries: 105
   pg_featureserv:
     image: pramsey/pg_featureserv:20200408
+    container_name: pg_featureserv
+    restart: always
     environment:
-      - DATABASE_URL=${PG_TILESERV_DATABASE_URL}
-    ports: 
-      - 7802:9000
-  pg_varnish:
-    image: ${PG_VARNISH_IMAGE}
-    environment: 
-      - BACKEND=pg_tileserv
-      - BACKEND_HOST=pg_tileserv
-      - BACKEND_PORT=7800
-    ports:
-      - 80
-    volumes:
-      - ./varnish/default.vcl:/etc/varnish/default.vcl
-    # healthcheck:
-    #   test: curl --fail -s http://localhost:80/ ||exit 1
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 3
-    #   start_period: 35s
+      - DATABASE_URL=postgresql://${PG_SERVICE_USER}:${PG_SERVICE_USER_PASSWORD}@pg_db:5432/${DB_NAME}
+    depends_on: 
+      - pg_db
+      - pg_api
   pg_nginx:
     image: nginx:1.17-alpine
+    container_name: pg_nginx
+    restart: always
     ports:
-      - target: 4002
-        published: 4002
-        mode: host
+      - ${PORT}:80
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
-    # healthcheck:
-    #   test: curl --fail -s http://localhost:8001 || exit 1
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 3
-    #   start_period: 35s
-volumes: 
+    depends_on: 
+      - pg_api
+      - pg_featureserv
+      - pg_tileserv
+volumes:
   ts_postgres_data:
