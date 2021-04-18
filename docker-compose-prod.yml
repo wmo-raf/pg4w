@@ -39,7 +39,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://${PG_SERVICE_USER}:${PG_SERVICE_USER_PASSWORD}@pg_db:5432/${DB_NAME}
     volumes:
-      - ./pg_tileserv/config/pg_tileserv.toml:/config/pg_tileserv.toml
+      - ./pg_tileserv/config/:/config
     depends_on: 
       - pg_db
       - pg_api
@@ -80,6 +80,7 @@ services:
     ports:
       - ${PORT}:80
     volumes:
+      - ./nginx/default.conf/:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on: 
       - pg_api

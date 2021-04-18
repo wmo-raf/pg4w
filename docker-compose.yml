@@ -75,6 +75,7 @@ services:
     ports:
       - ${PORT}:80
     volumes:
+      - ./nginx/default.conf/:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on: 
       - pg_api
