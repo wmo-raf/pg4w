@@ -55,6 +55,20 @@ services:
     depends_on: 
       - pg_db
       - pg_api
+  pg_varnish:
+    build: ./varnish
+    image: localhost:5000/pg-varnish:dev
+    container_name: pg_varnish
+    ports:
+      - 80
+    environment: 
+      - BACKEND=pg_tileserv
+      - BACKEND_HOST=pg_tileserv
+      - BACKEND_PORT=7800
+    volumes:
+      - ./varnish/default.vcl/:/etc/varnish/default.vcl
+    depends_on: 
+      - pg_tileserv
   pg_nginx:
     image: nginx:1.17-alpine
     container_name: pg_nginx
