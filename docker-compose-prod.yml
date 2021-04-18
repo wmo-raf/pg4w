@@ -3,6 +3,7 @@ version: '3.8'
 services:
   pg_db:
     image: postgis/postgis:12-master
+    command: postgres -c shared_buffers=10GB -c effective_cache_size=10GB -c max_worker_processes=10 -c max_parallel_workers=10
     container_name: pg_db
     restart: always
     environment:
