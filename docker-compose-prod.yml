@@ -43,8 +43,6 @@ services:
     depends_on: 
       - pg_db
       - pg_api
-    ports:
-      - 7800:7800
     healthcheck:
       test: curl --fail -s http://localhost:7800/ ||exit 1
       interval: 5s
@@ -66,7 +64,7 @@ services:
     restart: always
     container_name: pg_varnish
     ports:
-      - 7802:80
+      - 7800:80
     environment: 
       - BACKEND=pg_tileserv
       - BACKEND_HOST=pg_tileserv
