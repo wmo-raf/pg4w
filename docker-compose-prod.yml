@@ -56,6 +56,8 @@ services:
     restart: always
     environment:
       - DATABASE_URL=postgresql://${PG_SERVICE_USER}:${PG_SERVICE_USER_PASSWORD}@pg_db:5432/${DB_NAME}
+    ports:
+      - 7801:9000
     depends_on: 
       - pg_db
       - pg_api
@@ -64,7 +66,7 @@ services:
     restart: always
     container_name: pg_varnish
     ports:
-      - 80
+      - 7800:80
     environment: 
       - BACKEND=pg_tileserv
       - BACKEND_HOST=pg_tileserv
@@ -72,19 +74,6 @@ services:
     volumes:
       - ./varnish/default.vcl/:/etc/varnish/default.vcl
     depends_on: 
-      - pg_tileserv
-  pg_nginx:
-    image: nginx:1.17-alpine
-    container_name: pg_nginx
-    restart: always
-    ports:
-      - ${PORT}:80
-    volumes:
-      - ./nginx/default.conf/:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d/:/etc/nginx/conf.d/
-    depends_on: 
-      - pg_api
-      - pg_featureserv
       - pg_tileserv
 volumes:
   ts_postgres_data:
