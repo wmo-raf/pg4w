@@ -66,7 +66,7 @@ services:
     restart: always
     container_name: pg_varnish
     ports:
-      - 7800:80
+      - 7802:80
     environment: 
       - BACKEND=pg_tileserv
       - BACKEND_HOST=pg_tileserv
