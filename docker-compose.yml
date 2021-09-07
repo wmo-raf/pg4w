@@ -10,6 +10,8 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
+    ports:
+      - 5438:5432
     volumes:
         - ts_postgres_data:/var/lib/postgresql/data/
   pg_api:
@@ -52,6 +54,8 @@ services:
   pg_featureserv:
     image: pramsey/pg_featureserv:20200408
     container_name: pg_featureserv
+    ports:
+      - 7801:9000
     environment:
       - DATABASE_URL=postgresql://${PG_SERVICE_USER}:${PG_SERVICE_USER_PASSWORD}@pg_db:5432/${DB_NAME}
     depends_on: 
