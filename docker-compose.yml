@@ -11,7 +11,7 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
-      - 5438:5432
+      - ${DB_EXTERNAL_PORT}:5432
     volumes:
         - ts_postgres_data:/var/lib/postgresql/data/
   pg_api:
@@ -26,11 +26,11 @@ services:
       - SQLALCHEMY_DATABASE_URI=postgresql://${DB_USER}:${DB_PASSWORD}@pg_db:5432/${DB_NAME}
       - PG_SERVICE_SCHEMA=${PG_SERVICE_SCHEMA}
       - PG_SERVICE_USER=${PG_SERVICE_USER}
-      - TILESERV_ROLE_PASSWORD=${PG_SERVICE_USER_PASSWORD}
+      - PG_SERVICE_USER_PASSWORD=${PG_SERVICE_USER_PASSWORD}
       - ROLLBAR_SERVER_TOKEN=${ROLLBAR_SERVER_TOKEN}
-      - DATABASE=postgres
-      - SQL_HOST=pg_db
-      - SQL_PORT=5432
+      - DB=postgres
+      - DB_HOST=pg_db
+      - DB_PORT=5432
     depends_on: 
       - pg_db
   pg_tileserv:
