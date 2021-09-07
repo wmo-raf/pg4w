@@ -54,6 +54,7 @@ services:
   pg_featureserv:
     image: pramsey/pg_featureserv:20200408
     container_name: pg_featureserv
+    restart: ${RESTART_POLICY}
     ports:
       - 7801:9000
     environment:
@@ -65,6 +66,7 @@ services:
     build: ./varnish
     image: localhost:5000/pg-varnish:dev
     container_name: pg_varnish
+    restart: ${RESTART_POLICY}
     ports:
       - 80
     environment: 
