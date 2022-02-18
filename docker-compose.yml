@@ -45,7 +45,7 @@ services:
       - pg_db
       - pg_api
     ports:
-      - 7800:7800
+      - 7800
     healthcheck:
       test: curl --fail -s http://localhost:7800/ ||exit 1
       interval: 5s
@@ -56,7 +56,7 @@ services:
     container_name: pg_featureserv
     restart: ${RESTART_POLICY}
     ports:
-      - 7801:9000
+      - 9000
     environment:
       - DATABASE_URL=postgresql://${PG_SERVICE_USER}:${PG_SERVICE_USER_PASSWORD}@pg_db:5432/${DB_NAME}
     depends_on: 
