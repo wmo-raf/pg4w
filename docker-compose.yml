@@ -64,7 +64,7 @@ services:
       - pg_api
   pg_varnish:
     build: ./varnish
-    image: localhost:5000/pg-varnish:dev
+    image: ${VARNISH_IMAGE}
     container_name: pg_varnish
     restart: ${RESTART_POLICY}
     ports:
