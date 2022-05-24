@@ -52,11 +52,6 @@ services:
       - pg_data_connector
     ports:
       - 7800
-    healthcheck:
-      test: curl --fail -s http://localhost:7800/ ||exit 1
-      interval: 5s
-      timeout: 5s
-      retries: 105
   pg_featureserv:
     build: ./pg_featureserv
     image: eahazardswatch.icpac.net/pg_featureserv:latest
