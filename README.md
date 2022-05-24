@@ -9,7 +9,7 @@ These microservices share a common PostGIS database, but provide different spati
 
 The components include:
 
-- **[pg_data_connector](https://github.com/icpac-igad/pg-data-connector)** - Provides an API inteface for importing geospatial data into a postgis database. Currently supports Geojson and Esri Shapefiles
+- **[pg_data_connector](https://github.com/icpac-igad/pg-data-connector)** - Provides an API interface for importing geospatial data into a postgis database. Currently supports Geojson and Esri Shapefiles
 
 - **pg_db** - The postgres/postgis database container for storing spatial vector datasets. This is the shared database that will be accessed by both **pg_featureserv** and **pg_tileserv.**  The pg_data_connector API will save the spatial files to this database
 
@@ -32,8 +32,8 @@ The following diagram illustrates how the services interact:
 ## Dependencies
 Execution requires:
 
-[Docker](https://www.docker.com/)
-[Docker Compose](https://docs.docker.com/compose/)
+- [Docker](https://www.docker.com/)
+- [Docker Compose](https://docs.docker.com/compose/)
 
 ## Installation
 1. Start by cloning the repository from github to your execution environment
@@ -43,6 +43,23 @@ Execution requires:
     ```
 
 2. Create and update your `.env` file. You can find an example `.env.sample` file in the project root. The variables are described in detail in [this section](#environment-variables) of the documentation.
+
+3. Build the images
+    ```
+    docker-compose build
+    ```
+
+    `NOTE:` When building for the first time, this might take some time.
+
+4. Run the services
+
+    ```
+    docker-compose up
+    ```
+
+- The `pg_data_connector API` can be accessed at `http://localhost:<port>/api/v1/pg-dataset`
+- `pg_featureserv` can be accessed at `http://localhost:<port>/featureserv`
+- `pg_tileserv` can be accessed at `http://localhost:<port>/tileserv`
 
 ## Environment Variables
 - PORT=> public port for nginx
