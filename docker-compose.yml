@@ -13,16 +13,18 @@ services:
     ports:
       - ${DB_EXTERNAL_PORT}:5432
     volumes:
-        - ts_postgres_data:/var/lib/postgresql/data/
-  pg_api:
-    build: ./app
+        - pg_postgres_data:/var/lib/postgresql/data/
+  pg_data_connector:
+    build: ./pg_data_connector
     image: ${API_IMAGE}
-    container_name: pg_api
+    container_name: pg_data_connector
     command: gunicorn --bind 0.0.0.0:8000 pgadapter:app
     restart: ${RESTART_POLICY}
     ports:
       - 8000
     environment:
+      - WAIT_HOSTS=pg_db:5432
+      - WAIT_TIMEOUT=60
       - SQLALCHEMY_DATABASE_URI=postgresql://${DB_USER}:${DB_PASSWORD}@pg_db:5432/${DB_NAME}
       - PG_SERVICE_SCHEMA=${PG_SERVICE_SCHEMA}
       - PG_SERVICE_USER=${PG_SERVICE_USER}
@@ -31,19 +33,23 @@ services:
       - DB=postgres
       - DB_HOST=pg_db
       - DB_PORT=5432
+      - FLASK_APP=pgadapter/__init__.py
     depends_on: 
       - pg_db
   pg_tileserv:
-    image: pramsey/pg_tileserv:20201211
+    build: ./pg_tileserv
+    image: eahazardswatch.icpac.net/pg_tileserv:latest
     container_name: pg_tileserv
     restart: ${RESTART_POLICY}
     environment:
+      - WAIT_HOSTS=pg_data_connector:8000
+      - WAIT_TIMEOUT=60
       - DATABASE_URL=postgresql://${PG_SERVICE_USER}:${PG_SERVICE_USER_PASSWORD}@pg_db:5432/${DB_NAME}
     volumes:
       - ./pg_tileserv/config/pg_tileserv.toml:/config/pg_tileserv.toml
     depends_on: 
       - pg_db
-      - pg_api
+      - pg_data_connector
     ports:
       - 7800
     healthcheck:
@@ -52,27 +58,29 @@ services:
       timeout: 5s
       retries: 105
   pg_featureserv:
-    image: pramsey/pg_featureserv:20200408
+    build: ./pg_featureserv
+    image: eahazardswatch.icpac.net/pg_featureserv:latest
     container_name: pg_featureserv
     restart: ${RESTART_POLICY}
     ports:
       - 9000
     environment:
+      - WAIT_HOSTS=pg_data_connector:8000
+      - WAIT_TIMEOUT=60
       - DATABASE_URL=postgresql://${PG_SERVICE_USER}:${PG_SERVICE_USER_PASSWORD}@pg_db:5432/${DB_NAME}
     depends_on: 
       - pg_db
-      - pg_api
+      - pg_data_connector
   pg_varnish:
     build: ./varnish
-    image: ${VARNISH_IMAGE}
+    image: eahazardswatch.icpac.net/pg_varnish:latest
     container_name: pg_varnish
     restart: ${RESTART_POLICY}
     ports:
       - 80
-    environment: 
-      - BACKEND=pg_tileserv
-      - BACKEND_HOST=pg_tileserv
-      - BACKEND_PORT=7800
+    environment:
+      - WAIT_HOSTS=pg_tileserv:7800
+      - WAIT_TIMEOUT=60
     volumes:
       - ./varnish/default.vcl/:/etc/varnish/default.vcl
     depends_on: 
@@ -87,8 +95,8 @@ services:
       - ./nginx/default.conf/:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d/:/etc/nginx/conf.d/
     depends_on: 
-      - pg_api
+      - pg_data_connector
       - pg_featureserv
       - pg_tileserv
 volumes:
-  ts_postgres_data:
+  pg_postgres_data:

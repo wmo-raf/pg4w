@@ -1,12 +1,8 @@
-FROM varnish:6.5.1
+FROM varnish:7.0.2
 
 LABEL maintainer="otenyo.erick@gmail.com"
 
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
+RUN chmod +x /wait
 
-RUN apt-get update && apt-get -y install netcat
-
-COPY ./custom-entrypoint.sh ./custom-entrypoint.sh
-
-ENTRYPOINT ["./custom-entrypoint.sh"]
-
-CMD [ "docker-varnish-entrypoint" ]
+ENTRYPOINT /wait && /usr/local/bin/docker-varnish-entrypoint
