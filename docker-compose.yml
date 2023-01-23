@@ -13,7 +13,7 @@ services:
     ports:
       - ${DB_EXTERNAL_PORT}:5432
     volumes:
-        - pg_postgres_data:/var/lib/postgresql/data/
+        - ${DB_VOLUME_PATH}:/var/lib/postgresql/data/
   pg_data_connector:
     build: ./pg_data_connector
     image: ${API_IMAGE}
