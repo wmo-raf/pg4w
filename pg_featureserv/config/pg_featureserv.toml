@@ -1,0 +1,15 @@
+[Server]
+UrlBase = "http://20.56.94.119/api/pg4w/featureserv"
+#BasePath = "/pg/featureserv"
+
+TransformFunctions = ["ST_Simplify"]
+
+[Website]
+# URL for the map view basemap
+# BasemapUrl = "https://africahazardswatch/tileserver-gl/styles/basic/{z}/{x}/{y}.png"
+
+[Paging]
+# The default number of features in a response
+LimitDefault = 100000
+# Maxium number of features in a response
+LimitMax = 100000
