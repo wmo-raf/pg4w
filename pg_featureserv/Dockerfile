@@ -1,4 +1,4 @@
-FROM pramsey/pg_featureserv:20200408
+FROM pramsey/pg_featureserv:20230120
 
 USER root
 
