@@ -65,6 +65,8 @@ services:
       - WAIT_HOSTS=pg_data_connector:8000
       - WAIT_TIMEOUT=60
       - DATABASE_URL=postgresql://${PG_SERVICE_USER}:${PG_SERVICE_USER_PASSWORD}@pg_db:5432/${DB_NAME}
+      - PGFS_PAGING_LIMITDEFAULT=50000
+      - PGFS_PAGING_LIMITMAX=50000
     volumes:
       - ./pg_featureserv/config/pg_featureserv.toml:/config/pg_featureserv.toml
     depends_on: 

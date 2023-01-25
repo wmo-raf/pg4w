@@ -1,4 +1,4 @@
-FROM pramsey/pg_tileserv:20201211
+FROM pramsey/pg_tileserv:20230120
 
 USER root
 
