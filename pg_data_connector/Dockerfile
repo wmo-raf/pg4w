@@ -80,7 +80,7 @@ RUN \
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.9.0/wait /wait
 RUN chmod +x /wait
 
-RUN git clone https://github.com/icpac-igad/pg-data-connector.git /usr/src/app
+RUN git clone https://github.com/wmo-raf/pg-data-connector.git /usr/src/app
 
 WORKDIR /usr/src/app
 

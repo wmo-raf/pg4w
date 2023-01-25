@@ -11,12 +11,12 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
-      - ${DB_EXTERNAL_PORT}:5432
+      - 5432
     volumes:
         - ${DB_VOLUME_PATH}:/var/lib/postgresql/data/
   pg_data_connector:
     build: ./pg_data_connector
-    image: ${API_IMAGE}
+    image: africahazardswatch.org/pg-data-connector:latest
     container_name: pg_data_connector
     command: gunicorn --bind 0.0.0.0:8000 pgadapter:app
     restart: ${RESTART_POLICY}
@@ -38,7 +38,7 @@ services:
       - pg_db
   pg_tileserv:
     build: ./pg_tileserv
-    image: eahazardswatch.icpac.net/pg_tileserv:latest
+    image: africahazardswatch.org/pg-tileserv:latest
     container_name: pg_tileserv
     restart: ${RESTART_POLICY}
     environment:
@@ -54,7 +54,7 @@ services:
       - 7800
   pg_featureserv:
     build: ./pg_featureserv
-    image: eahazardswatch.icpac.net/pg_featureserv:latest
+    image: africahazardswatch.org/pg-featureserv:latest
     container_name: pg_featureserv
     restart: ${RESTART_POLICY}
     ports:
@@ -68,7 +68,7 @@ services:
       - pg_data_connector
   pg_varnish:
     build: ./varnish
-    image: eahazardswatch.icpac.net/pg_varnish:latest
+    image: africahazardswatch.org/pg-varnish:latest
     container_name: pg_varnish
     restart: ${RESTART_POLICY}
     ports:
@@ -85,7 +85,7 @@ services:
     container_name: pg_nginx
     restart: ${RESTART_POLICY}
     ports:
-      - ${PORT}:80
+      - 80
     volumes:
       - ./nginx/default.conf/:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d/:/etc/nginx/conf.d/
@@ -93,5 +93,7 @@ services:
       - pg_data_connector
       - pg_featureserv
       - pg_tileserv
-volumes:
-  pg_postgres_data:
+networks:
+    default:
+      name:  ${AHW_DOCKER_NETWORK}
+      external: true
