@@ -34,6 +34,8 @@ services:
       - DB_HOST=pg_db
       - DB_PORT=5432
       - FLASK_APP=pgadapter/__init__.py
+      - API_USERNAME=${PG_API_USERNAME}
+      - API_PASSWORD_HASH=${PG_API_PASSWORD_HASH}
     depends_on: 
       - pg_db
   pg_tileserv:
