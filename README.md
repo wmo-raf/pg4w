@@ -1,6 +1,6 @@
-# EAHW Postgis for the Web Services
+# Postgis for the Web Services
 
-Configuration and instructions to run EAHW PostGIS for the Web Services
+Configuration and instructions to run AHW PostGIS for the Web Services
 
 ## Introduction
 
@@ -9,7 +9,7 @@ These microservices share a common PostGIS database, but provide different spati
 
 The components include:
 
-- **[pg_data_connector](https://github.com/icpac-igad/pg-data-connector)** - Provides an API interface for importing geospatial data into a postgis database. Currently supports Geojson and Esri Shapefiles
+- **[pg_data_connector](https://github.com/wmo-raf/pg-data-connector)** - Provides an API interface for importing geospatial data into a postgis database. Currently supports Geojson and Esri Shapefiles
 
 - **pg_db** - The postgres/postgis database container for storing spatial vector datasets. This is the shared database that will be accessed by both **pg_featureserv** and **pg_tileserv.**  The pg_data_connector API will save the spatial files to this database
 
@@ -38,7 +38,7 @@ Execution requires:
 ## Installation
 1. Start by cloning the repository from github to your execution environment
     ```
-    git clone https://github.com/icpac-igad/eahw-pg4w.git
+    git clone https://github.com/wmo-raf/pg4w.git
     cd eahw-pg4w
     ```
 
