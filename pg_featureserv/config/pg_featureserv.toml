@@ -1,5 +1,5 @@
 [Server]
-UrlBase = "http://20.56.94.119/api/pg4w/featureserv"
+UrlBase = "http://20.56.94.119/pg4w/featureserv"
 #BasePath = "/pg/featureserv"
 
 TransformFunctions = ["ST_Simplify"]
