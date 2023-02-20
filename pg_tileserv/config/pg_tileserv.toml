@@ -2,3 +2,5 @@ MaxFeaturesPerTile = 150000
 
 # Cache for 24 hours. 0 means no cachke control header wiil be set
 CacheTTL = 86400
+
+CORSOrigins = ["*"]
