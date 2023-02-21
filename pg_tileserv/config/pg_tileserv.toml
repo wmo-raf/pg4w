@@ -4,3 +4,7 @@ MaxFeaturesPerTile = 150000
 CacheTTL = 86400
 
 CORSOrigins = ["*"]
+
+UrlBase = "http://20.56.94.119/pg4w/tileserv/"
+
+BasePath = "/pg4w/tileserv/"
